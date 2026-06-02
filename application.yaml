@@ -1,0 +1,98 @@
+---
+# Source: flask-aws-monitor/templates/service.yaml
+kind: Service     
+apiVersion: v1     
+metadata:
+  name: test-svc
+spec:
+  selector:
+    app: test
+    
+    generator: helm
+    name: test
+  
+  type: ClusterIP
+  
+  ports:         
+  - name: http   
+    protocol: TCP
+    
+    port: 80
+    
+    port: 5001
+    targetPort: 5001
+---
+# Source: flask-aws-monitor/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deploy
+  labels:
+    
+    generator: helm
+    name: test
+spec:
+  selector: 
+    matchLabels:
+      app: test
+      
+      generator: helm
+      name: test
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: test
+        
+        generator: helm
+        name: test
+    spec:
+      containers:
+      - name: test
+        image: sm1986/flask-aws-monitor:latest
+        ports:
+        - containerPort: 5001
+        env:
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: aws-credentials
+                key: AWS_ACCESS_KEY_ID
+
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: aws-credentials
+                key: AWS_SECRET_ACCESS_KEY
+
+
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# Source: flask-aws-monitor/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-ing
+  labels:
+    
+    generator: helm
+    name: test
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+       paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: test-svc
+              port:
+                 number: 5001
