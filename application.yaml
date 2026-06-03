@@ -17,7 +17,7 @@ spec:
   - name: http   
     protocol: TCP
     # 
-    # port: 80
+    # port: 
     # 
     port: 5001
     targetPort: 80
@@ -51,7 +51,7 @@ spec:
       - name: test
         image: sm1986/flask-aws-monitor:latest
         ports:
-        - containerPort: 80
+        - containerPort: 5001
         env:
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
@@ -95,4 +95,4 @@ spec:
             service:
               name: test-svc
               port:
-                 number: 5001
+                 number: 80
