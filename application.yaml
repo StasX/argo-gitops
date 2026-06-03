@@ -1,5 +1,5 @@
 ---
-# Source: flask-aws-monitor/templates/service.yaml
+# Source: AWS-Monitor/templates/service.yaml
 kind: Service     
 apiVersion: v1     
 metadata:
@@ -22,7 +22,7 @@ spec:
     port: 5001
     targetPort: 5001
 ---
-# Source: flask-aws-monitor/templates/deployment.yaml
+# Source: AWS-Monitor/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -75,7 +75,7 @@ spec:
             cpu: "500m"
             memory: "512Mi"
 ---
-# Source: flask-aws-monitor/templates/ingress.yaml
+# Source: AWS-Monitor/templates/ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
