@@ -1,0 +1,17 @@
+name: main-workflow
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+    - name: notify
+      uses: slackapi/slack-github-action@v3.0.3
+      with:
+        webhook: ${{ secrets.SLACK_API}}
+        webhook-type: incoming-webhook
+        payload: |
+          text: "New version of app going to be deployed yet, please check the logs"  
