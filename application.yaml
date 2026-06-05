@@ -46,7 +46,7 @@ spec:
     spec:
       containers:
       - name: test
-        image: sm1986/flask-aws-monitor:latest
+        image: /aws-monitor:1.0.0:1.0.0
         ports:
         - containerPort: 5001
         env:
