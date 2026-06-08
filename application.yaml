@@ -46,15 +46,10 @@ spec:
     spec:
       containers:
       - name: test
-        image: sm1986/aws-monitor:1.0.0
+        image: sm1986/aws-monitor:1.0.1
         ports:
         - containerPort: 5001
         env:
-        env:
-
-          - name: APP_HOST
-            value: "0.0.0.0"
-
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
