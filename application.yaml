@@ -47,7 +47,7 @@ spec:
     spec:
       containers:
       - name: test
-        image: sm1986/aws-monitor:1.1.13
+        image: sm1986/aws-monitor:1.1.14
         ports:
         - containerPort: 5001
         env:
