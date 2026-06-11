@@ -1,0 +1,25 @@
+replicas: 1
+
+ingress:
+  enabled: true
+
+pod:
+  targetPort: 5001
+  port: 80
+
+awsSecretName: aws-credentials
+
+resources:
+  requests:
+    cpu: "600m"
+    memory: "512Mi"
+
+  limits:
+    cpu: "1000m"
+    memory: "1024Mi"
+
+hpa:
+  enabled: true
+  maxReplicas: 10
+  avgCPUUtilization: 50
+  avgMemoryUtilization: 50

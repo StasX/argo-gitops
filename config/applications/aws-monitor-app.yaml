@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: demo-app
+  name: aws-monitor-app
   namespace: argocd
 spec:
-  project: my-project
+  project: aws-monitor-project
   source:
     repoURL: https://github.com/StasX/argo-gitops.git
     path: .
