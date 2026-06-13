@@ -17,7 +17,7 @@ spec:
     metadata:
       name: 'aws-monitor-{{path.basename}}'
     spec:
-      project: default
+      project: aws-monitor-project
 
       source:
         repoURL: https://github.com/StasX/argo-gitops.git
