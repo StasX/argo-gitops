@@ -47,7 +47,7 @@ spec:
     spec:
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.1
+        image: sm1986/aws-monitor:1.0.0
         ports:
         - containerPort: 5001
         env:
@@ -66,12 +66,40 @@ spec:
 
         resources:
           requests:
-            cpu: "200m"
-            memory: "256Mi"
+            cpu: "600m"
+            memory: "512Mi"
 
           limits:
-            cpu: "400m"
-            memory: "256Mi"
+            cpu: "1000m"
+            memory: "1024Mi"
+---
+# Source: AWS-Monitor/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: aws-monitor-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: aws-monitor-deploy
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 50
+
+
 ---
 # Source: AWS-Monitor/templates/ingress.yaml
 apiVersion: networking.k8s.io/v1

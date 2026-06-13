@@ -47,7 +47,7 @@ spec:
     spec:
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.1
+        image: sm1986/aws-monitor:1.0.0
         ports:
         - containerPort: 5001
         env:
@@ -71,7 +71,7 @@ spec:
 
           limits:
             cpu: "400m"
-            memory: "256Mi"
+            memory: "384Mi"
 ---
 # Source: AWS-Monitor/templates/ingress.yaml
 apiVersion: networking.k8s.io/v1
