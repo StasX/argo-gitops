@@ -1,0 +1,124 @@
+---
+# Source: AWS-Monitor/templates/service.yaml
+kind: Service     
+apiVersion: v1     
+metadata:
+  name: aws-monitor-svc
+spec:
+  selector:
+    app: aws-monitor
+    
+    generator: helm
+    name: aws-monitor
+  
+  type: ClusterIP
+  
+  ports:         
+  - name: http   
+    protocol: TCP
+    port: 80
+    targetPort: 5001
+
+---
+# Source: AWS-Monitor/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aws-monitor-deploy
+  labels:
+    
+    generator: helm
+    name: aws-monitor
+spec:
+  selector: 
+    matchLabels:
+      app: aws-monitor
+      
+      generator: helm
+      name: aws-monitor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: aws-monitor
+        
+        generator: helm
+        name: aws-monitor
+    spec:
+      containers:
+      - name: aws-monitor
+        image: sm1986/aws-monitor:1.0.0
+        ports:
+        - containerPort: 5001
+        env:
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: aws-credentials
+                key: AWS_ACCESS_KEY_ID
+
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: aws-credentials
+                key: AWS_SECRET_ACCESS_KEY
+
+
+        resources:
+          requests:
+            cpu: "600m"
+            memory: "512Mi"
+
+          limits:
+            cpu: "1000m"
+            memory: "1024Mi"
+---
+# Source: AWS-Monitor/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: aws-monitor-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: aws-monitor-deploy
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 50
+
+
+---
+# Source: AWS-Monitor/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aws-monitor-ing
+  labels:
+    
+    generator: helm
+    name: aws-monitor
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+       paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: aws-monitor-svc
+              port:
+                 number: 80
