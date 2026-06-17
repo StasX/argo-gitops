@@ -87,8 +87,8 @@ spec:
   rules:
     - http:
        paths:
-        - path: /qa/
-          pathType: Prefix
+        - path: /qa/(/|$)(.*)
+          pathType: ImplementationSpecific
           backend:
             service:
               name: aws-monitor-svc
