@@ -47,7 +47,7 @@ spec:
     spec:
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.5
+        image: sm1986/aws-monitor:1.0.6
         ports:
         - containerPort: 5001
         env:
@@ -87,8 +87,8 @@ spec:
   rules:
     - http:
        paths:
-        - path: /dev/
-          pathType: Prefix
+        - path: /dev/(/|$)(.*)
+          pathType: ImplementationSpecific
           backend:
             service:
               name: aws-monitor-svc
