@@ -2,7 +2,7 @@ replicas: 1
 
 ingress:
   enabled: true
-  path: /dev/
+  path: /dev
 
 pod:
   targetPort: 5001

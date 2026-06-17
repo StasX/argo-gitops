@@ -2,7 +2,7 @@ replicas: 1
 
 ingress:
   enabled: true
-  path: /qa/
+  path: /qa
 
 pod:
   targetPort: 5001
