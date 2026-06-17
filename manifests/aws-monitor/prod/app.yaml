@@ -47,7 +47,7 @@ spec:
     spec:
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.6
+        image: sm1986/aws-monitor:1.0.7
         ports:
         - containerPort: 5001
         env:
@@ -110,6 +110,8 @@ metadata:
     
     generator: helm
     name: aws-monitor
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
   rules:
