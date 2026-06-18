@@ -20,12 +20,14 @@ externalSecret:
 
 resources:
   requests:
-    cpu: "600m"
-    memory: "512Mi"
+    cpu: "200m"
+    memory: "256Mi"
+    ephemeralStorage: "100Mi"
 
   limits:
-    cpu: "1000m"
-    memory: "1024Mi"
+    cpu: "500m"
+    memory: "512Mi"
+    ephemeralStorage: "1Gi"
 
 hpa:
   enabled: true
