@@ -14,12 +14,15 @@ spec:
       app: aws-monitor
   policyTypes:
     - Ingress
+    - Egress
   ingress:
     - from:
         - namespaceSelector: {}
       ports:
         - protocol: TCP
           port: 5001
+  egress:
+  - {}
 ---
 # Source: AWS-Monitor/templates/pdb.yaml
 apiVersion: policy/v1
@@ -85,7 +88,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.16-dev
+        image: sm1986/aws-monitor:1.0.17-dev
         imagePullPolicy: Always
 
         readinessProbe:
