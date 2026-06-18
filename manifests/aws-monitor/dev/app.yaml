@@ -1,4 +1,37 @@
 ---
+# Source: AWS-Monitor/templates/networkPolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aws-monitor-np
+  labels:
+    
+    generator: helm
+    name: aws-monitor
+spec:
+  podSelector:
+    matchLabels:
+      app: aws-monitor
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 5001
+---
+# Source: AWS-Monitor/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: aws-monitor-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: aws-monitor
+---
 # Source: AWS-Monitor/templates/service.yaml
 kind: Service     
 apiVersion: v1     
@@ -29,14 +62,14 @@ metadata:
     
     generator: helm
     name: aws-monitor
-spec:
+spec:  
   selector: 
     matchLabels:
       app: aws-monitor
       
       generator: helm
       name: aws-monitor
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
@@ -45,9 +78,39 @@ spec:
         generator: helm
         name: aws-monitor
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.15-dev
+        image: sm1986/aws-monitor:1.0.16-dev
+        imagePullPolicy: Always
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5001
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          tcpSocket: # validate if pod alive via tcp connection
+            port: 5001
+          initialDelaySeconds: 30
+          periodSeconds: 20
+
+
+
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          privileged: false
+          capabilities:
+            drop:
+              - ALL
         ports:
         - containerPort: 5001
         env:
@@ -68,10 +131,12 @@ spec:
           requests:
             cpu: "200m"
             memory: "256Mi"
+            ephemeral-storage: "100Mi"
 
           limits:
-            cpu: "400m"
-            memory: "256Mi"
+            cpu: "500m"
+            memory: "512Mi"
+            ephemeral-storage: "1Gi"
 ---
 # Source: AWS-Monitor/templates/ingress.yaml
 apiVersion: networking.k8s.io/v1
