@@ -1,4 +1,5 @@
-replicas: 1
+# set at least 2 replicas
+replicas: 2
 
 ingress:
   enabled: true
