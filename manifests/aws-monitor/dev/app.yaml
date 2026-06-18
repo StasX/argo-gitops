@@ -47,7 +47,7 @@ spec:
     spec:
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.14-dev
+        image: sm1986/aws-monitor:1.0.15-dev
         ports:
         - containerPort: 5001
         env:
