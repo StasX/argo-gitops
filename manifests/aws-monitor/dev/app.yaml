@@ -90,7 +90,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.19-dev
+        image: sm1986/aws-monitor:1.0.20-dev
         imagePullPolicy: Always
 
         readinessProbe:
@@ -177,6 +177,7 @@ metadata:
   name: aws-monitor-pm
   namespace: monitoring
   labels:
+    release: prometheus
     
     generator: helm
     name: aws-monitor
@@ -202,7 +203,7 @@ metadata:
   name: aws-monitor-sm
   namespace: monitoring
   labels:
-    release: 
+    release: prometheus
     
     generator: helm
     name: aws-monitor
