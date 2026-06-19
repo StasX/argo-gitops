@@ -40,6 +40,11 @@ kind: Service
 apiVersion: v1     
 metadata:
   name: aws-monitor-svc
+  labels:
+    app: aws-monitor
+    
+    generator: helm
+    name: aws-monitor
 spec:
   selector:
     app: aws-monitor
@@ -90,7 +95,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.24-dev
+        image: sm1986/aws-monitor:1.0.25-dev
         imagePullPolicy: Always
 
         readinessProbe:
