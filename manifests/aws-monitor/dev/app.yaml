@@ -90,7 +90,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.23-dev
+        image: sm1986/aws-monitor:1.0.24-dev
         imagePullPolicy: Always
 
         readinessProbe:
@@ -193,7 +193,7 @@ spec:
 
   podMetricsEndpoints:
     - port: http
-      path: /dev/metrics
+      path: /metrics
       interval: 15s
       scrapeTimeout: 10s
 ---
@@ -219,6 +219,6 @@ spec:
 
   endpoints:
     - port: http
-      path: /dev/metrics
+      path: /metrics
       interval: 15s
       scrapeTimeout: 10s
