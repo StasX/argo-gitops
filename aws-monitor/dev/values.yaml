@@ -41,11 +41,9 @@ networkPolicy:
 pdb:
   minAvaliableReplicas: 2
 
-monitoring:
-  namespace: monitoring
-
 podMonitor:
   enabled: true
+  namespace: monitoring
   path: /
   interval: 15s
   scrapeTimeout: 10s
@@ -53,6 +51,7 @@ podMonitor:
 
 serviceMonitor:
   enabled: true
+  namespace: monitoring
   path: /
   interval: 15s
   scrapeTimeout: 10s
