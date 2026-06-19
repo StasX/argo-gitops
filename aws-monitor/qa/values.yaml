@@ -43,6 +43,7 @@ pdb:
 
 podMonitor:
   enabled: true
+  env: qa
   release: prometheus
   namespace: monitoring
   path: /metrics
@@ -51,6 +52,7 @@ podMonitor:
 
 serviceMonitor:
   enabled: true
+  env: qa
   release: prometheus
   namespace: monitoring
   path: /metrics
