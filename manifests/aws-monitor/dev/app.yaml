@@ -30,7 +30,7 @@ kind: PodDisruptionBudget
 metadata:
   name: aws-monitor-pdb
 spec:
-  minAvailable: 1
+  minAvailable: 2
   selector:
     matchLabels:
       app: aws-monitor
@@ -88,7 +88,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.17-dev
+        image: sm1986/aws-monitor:1.0.18-dev
         imagePullPolicy: Always
 
         readinessProbe:
