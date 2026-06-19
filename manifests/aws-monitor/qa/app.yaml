@@ -90,7 +90,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.14-qa
+        image: sm1986/aws-monitor:1.0.15-qa
         imagePullPolicy: Always
 
         readinessProbe:
