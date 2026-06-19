@@ -45,7 +45,7 @@ podMonitor:
   enabled: true
   release: prometheus
   namespace: monitoring
-  path: /metrics
+  path: /dev/metrics
   interval: 15s
   scrapeTimeout: 10s
 
@@ -54,6 +54,6 @@ serviceMonitor:
   enabled: true
   release: prometheus
   namespace: monitoring
-  path: /metrics
+  path: /dev/metrics
   interval: 15s
   scrapeTimeout: 10s

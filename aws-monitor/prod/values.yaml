@@ -3,7 +3,7 @@ replicas: 5
 
 ingress:
   enabled: true
-  path: /prod
+  path: /
 
 pod:
   targetPort: 5001
