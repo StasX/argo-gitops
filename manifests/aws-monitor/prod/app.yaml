@@ -88,7 +88,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.9
+        image: sm1986/aws-monitor:1.0.10
         imagePullPolicy: Always
 
         readinessProbe:
@@ -193,3 +193,57 @@ spec:
               name: aws-monitor-svc
               port:
                  number: 80
+
+
+---
+# Source: AWS-Monitor/templates/podMonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: aws-monitor-pm
+  namespace: monitoring
+  labels:
+    release: prometheus
+    
+    generator: helm
+    name: aws-monitor
+spec:
+  selector:
+    matchLabels:
+      app: aws-monitor
+
+  namespaceSelector:
+    matchNames:
+      - default
+
+  podMetricsEndpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
+---
+# Source: AWS-Monitor/templates/serviceMonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: aws-monitor-sm
+  namespace: monitoring
+  labels:
+    release: prometheus
+    
+    generator: helm
+    name: aws-monitor
+spec:
+  selector:
+    matchLabels:
+      app: aws-monitor
+
+  namespaceSelector:
+    matchNames:
+      - default
+
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
