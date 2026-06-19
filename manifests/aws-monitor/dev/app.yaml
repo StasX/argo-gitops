@@ -90,7 +90,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.22-dev
+        image: sm1986/aws-monitor:1.0.23-dev
         imagePullPolicy: Always
 
         readinessProbe:
@@ -117,7 +117,8 @@ spec:
             drop:
               - ALL
         ports:
-        - containerPort: 5001
+        - name: http 
+          containerPort: 5001
         env:
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
