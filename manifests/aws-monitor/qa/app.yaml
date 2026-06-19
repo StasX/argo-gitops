@@ -95,7 +95,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.20-qa
+        image: sm1986/aws-monitor:1.0.21-qa
         imagePullPolicy: Always
 
         readinessProbe:
@@ -166,7 +166,7 @@ spec:
   rules:
     - http:
        paths:
-        - path: "/qa(/|$)(.*)"
+        - path: "/(/|$)(.*)"
           pathType: ImplementationSpecific
           backend:
             service:
@@ -194,7 +194,7 @@ spec:
 
   namespaceSelector:
     matchNames:
-    - default
+    - qa
 
   podMetricsEndpoints:
     - port: http
@@ -220,7 +220,7 @@ spec:
 
   namespaceSelector:
     matchNames:
-    - default
+    - qa
 
   endpoints:
     - port: http
