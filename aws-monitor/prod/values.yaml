@@ -37,3 +37,6 @@ hpa:
 
 networkPolicy:
   enabled: true
+
+pdb:
+  minAvaliableReplicas: 2
