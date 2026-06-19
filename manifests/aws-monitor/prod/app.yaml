@@ -1,4 +1,40 @@
 ---
+# Source: AWS-Monitor/templates/networkPolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aws-monitor-np
+  labels:
+    
+    generator: helm
+    name: aws-monitor
+spec:
+  podSelector:
+    matchLabels:
+      app: aws-monitor
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 5001
+  egress:
+  - {}
+---
+# Source: AWS-Monitor/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: aws-monitor-pdb
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: aws-monitor
+---
 # Source: AWS-Monitor/templates/service.yaml
 kind: Service     
 apiVersion: v1     
@@ -29,14 +65,14 @@ metadata:
     
     generator: helm
     name: aws-monitor
-spec:
+spec:  
   selector: 
     matchLabels:
       app: aws-monitor
       
       generator: helm
       name: aws-monitor
-  replicas: 1
+  
   template:
     metadata:
       labels:
@@ -45,9 +81,39 @@ spec:
         generator: helm
         name: aws-monitor
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.8
+        image: sm1986/aws-monitor:1.0.9
+        imagePullPolicy: Always
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5001
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          tcpSocket: # validate if pod alive via tcp connection
+            port: 5001
+          initialDelaySeconds: 30
+          periodSeconds: 20
+
+
+
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          privileged: false
+          capabilities:
+            drop:
+              - ALL
         ports:
         - containerPort: 5001
         env:
@@ -66,12 +132,14 @@ spec:
 
         resources:
           requests:
-            cpu: "600m"
-            memory: "512Mi"
+            cpu: "200m"
+            memory: "256Mi"
+            ephemeral-storage: "100Mi"
 
           limits:
-            cpu: "1000m"
-            memory: "1024Mi"
+            cpu: "500m"
+            memory: "512Mi"
+            ephemeral-storage: "1Gi"
 ---
 # Source: AWS-Monitor/templates/hpa.yaml
 apiVersion: autoscaling/v2
@@ -83,7 +151,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: aws-monitor-deploy
-  minReplicas: 1
+  minReplicas: 5
   maxReplicas: 10
   metrics:
     - type: Resource
