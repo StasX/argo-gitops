@@ -40,6 +40,11 @@ kind: Service
 apiVersion: v1     
 metadata:
   name: aws-monitor-svc
+  labels:
+    app: aws-monitor
+    
+    generator: helm
+    name: aws-monitor
 spec:
   selector:
     app: aws-monitor
@@ -90,7 +95,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.15-qa
+        image: sm1986/aws-monitor:1.0.16-qa
         imagePullPolicy: Always
 
         readinessProbe:
@@ -117,7 +122,8 @@ spec:
             drop:
               - ALL
         ports:
-        - containerPort: 5001
+        - name: http 
+          containerPort: 5001
         env:
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
@@ -188,7 +194,7 @@ spec:
 
   namespaceSelector:
     matchNames:
-      - default
+    - default
 
   podMetricsEndpoints:
     - port: http
@@ -214,7 +220,7 @@ spec:
 
   namespaceSelector:
     matchNames:
-      - default
+    - default
 
   endpoints:
     - port: http
