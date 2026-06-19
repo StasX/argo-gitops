@@ -88,7 +88,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.10
+        image: sm1986/aws-monitor:1.0.11
         imagePullPolicy: Always
 
         readinessProbe:
@@ -115,7 +115,8 @@ spec:
             drop:
               - ALL
         ports:
-        - containerPort: 5001
+        - name: http 
+          containerPort: 5001
         env:
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
@@ -186,7 +187,7 @@ spec:
   rules:
     - http:
        paths:
-        - path: "/prod(/|$)(.*)"
+        - path: "/(/|$)(.*)"
           pathType: ImplementationSpecific
           backend:
             service:
