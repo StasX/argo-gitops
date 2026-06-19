@@ -22,7 +22,25 @@ spec:
         - protocol: TCP
           port: 5001
   egress:
-  - {}
+  # Allow DNS
+  - to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+    ports:
+      - protocol: UDP
+        port: 53
+      - protocol: TCP
+        port: 53
+  # Allow outbound HTTP and HTTPS
+  - to:
+      - ipBlock:
+          cidr: 0.0.0.0/0
+    ports:
+      - protocol: TCP
+        port: 80
+      - protocol: TCP
+        port: 443
 ---
 # Source: AWS-Monitor/templates/pdb.yaml
 apiVersion: policy/v1
@@ -95,7 +113,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.32-dev
+        image: sm1986/aws-monitor:1.0.33-dev
         imagePullPolicy: Always
 
         readinessProbe:
