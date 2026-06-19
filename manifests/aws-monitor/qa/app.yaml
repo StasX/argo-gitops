@@ -95,7 +95,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.19-qa
+        image: sm1986/aws-monitor:1.0.20-qa
         imagePullPolicy: Always
 
         readinessProbe:
@@ -180,7 +180,7 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: aws-monitor-default-pm
+  name: aws-monitor-qa-pm
   namespace: monitoring
   labels:
     release: prometheus
@@ -206,7 +206,7 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: aws-monitor-default-sm
+  name: aws-monitor-qa-sm
   namespace: monitoring
   labels:
     release: prometheus
