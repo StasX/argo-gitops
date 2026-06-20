@@ -32,6 +32,7 @@ resources:
 hpa:
   enabled: false
   maxReplicas: 10
+  minReplicas: 4
   avgCPUUtilization: 90
   avgMemoryUtilization: 90
 
