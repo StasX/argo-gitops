@@ -39,7 +39,8 @@ networkPolicy:
   enabled: true
 
 pdb:
-  minAvaliableReplicas: 2
+  minAvailableReplicas: 2
+  maxUnavailable: 2
 
 podMonitor:
   enabled: true
