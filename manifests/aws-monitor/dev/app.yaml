@@ -49,6 +49,7 @@ metadata:
   name: aws-monitor-pdb
 spec:
   minAvailable: 2
+  maxUnavailable: 2
   selector:
     matchLabels:
       app: aws-monitor
@@ -113,7 +114,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.33-dev
+        image: sm1986/aws-monitor:1.0.34-dev
         imagePullPolicy: Always
 
         readinessProbe:
