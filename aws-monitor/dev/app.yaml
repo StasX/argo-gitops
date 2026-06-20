@@ -113,7 +113,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.35-dev
+        image: sm1986/aws-monitor:1.0.36-dev
         imagePullPolicy: Always
 
         readinessProbe:
@@ -184,7 +184,7 @@ spec:
   rules:
     - http:
        paths:
-        - path: "/(/|$)(.*)"
+        - path: "/dev(/(q/w*)?)?$"
           pathType: ImplementationSpecific
           backend:
             service:
