@@ -1,5 +1,5 @@
 # set at least 2 replicas
-replicas: 3
+replicas: 4
 
 ingress:
   enabled: true
@@ -32,15 +32,14 @@ resources:
 hpa:
   enabled: false
   maxReplicas: 10
-  avgCPUUtilization: 50
-  avgMemoryUtilization: 50
+  avgCPUUtilization: 90
+  avgMemoryUtilization: 90
 
 networkPolicy:
   enabled: true
 
 pdb:
-  minAvailableReplicas: 2
-  maxUnavailable: 2
+  maxUnavailable: 25%
 
 podMonitor:
   enabled: true
