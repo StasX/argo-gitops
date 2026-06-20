@@ -9,9 +9,9 @@ spec:
         repoURL: https://github.com/StasX/argo-gitops.git
         revision: main
         directories:
-          - path: monitor/dev
-          - path: monitor/qa
-          - path: monitor/prod
+          - path: aws-monitor/dev
+          - path: aws-monitor/qa
+          - path: aws-monitor/prod
 
   template:
     metadata:
