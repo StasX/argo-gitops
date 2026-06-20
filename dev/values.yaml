@@ -31,15 +31,16 @@ resources:
 
 hpa:
   enabled: false
-  maxReplicas: 10
-  avgCPUUtilization: 50
-  avgMemoryUtilization: 50
+  maxReplicas: 12
+  minReplicas: 6
+  avgCPUUtilization: 80
+  avgMemoryUtilization: 80
 
 networkPolicy:
   enabled: true
 
 pdb:
-  minAvaliableReplicas: 2
+  maxUnavailable: 25%
 
 podMonitor:
   enabled: true
