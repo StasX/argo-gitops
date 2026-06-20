@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: aws-monitor-applicationset
+  name: monitor
   namespace: argocd
 spec:
   generators:
@@ -9,15 +9,15 @@ spec:
         repoURL: https://github.com/StasX/argo-gitops.git
         revision: main
         directories:
-          - path: manifests/aws-monitor/dev
-          - path: manifests/aws-monitor/qa
-          - path: manifests/aws-monitor/prod
+          - path: monitor/dev
+          - path: monitor/qa
+          - path: monitor/prod
 
   template:
     metadata:
-      name: 'aws-monitor-{{path.basename}}'
+      name: 'monitor-{{path.basename}}'
     spec:
-      project: aws-monitor-project
+      project: monitor
 
       source:
         repoURL: https://github.com/StasX/argo-gitops.git

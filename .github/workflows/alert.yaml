@@ -2,15 +2,15 @@ name: main-workflow
 
 on:
   push:
-    branches: [main]
+    branches: [main, monitor, config]
     paths-ignore:
       - 'README.md'
       - '.github/workflows/**'
-      - 'config/**'
       - '.gitattributes'
 
 jobs:
-  notify:
+  notify-manifest-change:
+    if: github.ref_name == 'main'
     runs-on: ubuntu-latest
     steps:
     - name: notify
@@ -19,4 +19,28 @@ jobs:
         webhook: ${{ secrets.SLACK_API}}
         webhook-type: incoming-webhook
         payload: |
-          text: "New version of app going to be deployed yet, please check the logs"  
+          text: "New version of app going to be deployed yet, please check the logs..."
+
+  notify-environments-change:
+    if: github.ref_name == 'monitor'
+    runs-on: ubuntu-latest
+    steps:
+    - name: notify
+      uses: slackapi/slack-github-action@v3.0.3
+      with:
+        webhook: ${{ secrets.SLACK_API}}
+        webhook-type: incoming-webhook
+        payload: |
+          text: "Application values of monitor app changed. Please run pipeline again..."
+
+  notify-config-change:
+    if: github.ref_name == 'config'
+    runs-on: ubuntu-latest
+    steps:
+    - name: notify
+      uses: slackapi/slack-github-action@v3.0.3
+      with:
+        webhook: ${{ secrets.SLACK_API}}
+        webhook-type: incoming-webhook
+        payload: |
+          text: "Configurations are changed..."
