@@ -22,7 +22,25 @@ spec:
         - protocol: TCP
           port: 5001
   egress:
-  - {}
+  # Allow DNS
+  - to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+    ports:
+      - protocol: UDP
+        port: 53
+      - protocol: TCP
+        port: 53
+  # Allow outbound HTTP and HTTPS
+  - to:
+      - ipBlock:
+          cidr: 0.0.0.0/0
+    ports:
+      - protocol: TCP
+        port: 80
+      - protocol: TCP
+        port: 443
 ---
 # Source: AWS-Monitor/templates/pdb.yaml
 apiVersion: policy/v1
@@ -30,7 +48,7 @@ kind: PodDisruptionBudget
 metadata:
   name: aws-monitor-pdb
 spec:
-  minAvailable: 2
+  maxUnavailable: 25%
   selector:
     matchLabels:
       app: aws-monitor
@@ -93,7 +111,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.15
+        image: sm1986/aws-monitor:1.0.16
         imagePullPolicy: Always
 
         readinessProbe:
@@ -157,21 +175,21 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: aws-monitor-deploy
-  minReplicas: 5
-  maxReplicas: 10
+  minReplicas: 6
+  maxReplicas: 30
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 50
+          averageUtilization: 75
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: 50
+          averageUtilization: 75
 
 
 ---
@@ -192,7 +210,7 @@ spec:
   rules:
     - http:
        paths:
-        - path: "/(/|$)(.*)"
+        - path: "/"
           pathType: ImplementationSpecific
           backend:
             service:
