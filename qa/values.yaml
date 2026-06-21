@@ -4,7 +4,7 @@ replicas: 3
 ingress:
   enabled: true
   # Set path in RegEx
-  path: "^/qa(?:/|/q|/q/.*)?$"
+  path: ^/qa(/q(/.*)?)?$
 
 pod:
   targetPort: 5001
