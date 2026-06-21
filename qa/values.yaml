@@ -1,10 +1,10 @@
 # set at least 2 replicas
-replicas: 3
+replicas: 2
 
 ingress:
   enabled: true
   # Set path in RegEx
-  path: ^/qa(/q(/.*)?)?$
+  path: "^/dev(/q(/.*)?)?$"
 
 pod:
   targetPort: 5001
@@ -32,10 +32,10 @@ resources:
 
 hpa:
   enabled: false
-  maxReplicas: 10
-  minReplicas: 3
-  avgCPUUtilization: 50
-  avgMemoryUtilization: 50
+  maxReplicas: 12
+  minReplicas: 6
+  avgCPUUtilization: 80
+  avgMemoryUtilization: 80
 
 networkPolicy:
   enabled: true
@@ -45,16 +45,17 @@ pdb:
 
 podMonitor:
   enabled: true
-  env: qa
+  env: dev
   release: prometheus
   namespace: monitoring
   path: /metrics
   interval: 15s
   scrapeTimeout: 10s
 
+
 serviceMonitor:
   enabled: true
-  env: qa
+  env: dev
   release: prometheus
   namespace: monitoring
   path: /metrics
