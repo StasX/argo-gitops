@@ -96,7 +96,7 @@ spec:
       generator: helm
       name: aws-monitor
   
-  replicas: 3
+  replicas: 2
   
   template:
     metadata:
@@ -113,7 +113,7 @@ spec:
         fsGroup: 10001
       containers:
       - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.31-qa
+        image: sm1986/aws-monitor:1.0.32-qa
         imagePullPolicy: Always
 
         readinessProbe:
@@ -183,7 +183,7 @@ spec:
   rules:
     - http:
        paths:
-        - path: "^/qa(/q(/.*)?)?$"
+        - path: "/"
           pathType: ImplementationSpecific
           backend:
             service:
@@ -197,7 +197,7 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: aws-monitor-qa-pm
+  name: aws-monitor-dev-pm
   namespace: monitoring
   labels:
     release: prometheus
@@ -211,7 +211,7 @@ spec:
 
   namespaceSelector:
     matchNames:
-    - qa
+    - dev
 
   podMetricsEndpoints:
     - port: http
@@ -223,7 +223,7 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: aws-monitor-qa-sm
+  name: aws-monitor-dev-sm
   namespace: monitoring
   labels:
     release: prometheus
@@ -237,7 +237,7 @@ spec:
 
   namespaceSelector:
     matchNames:
-    - qa
+    - dev
 
   endpoints:
     - port: http
