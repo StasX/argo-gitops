@@ -60,3 +60,9 @@ serviceMonitor:
   path: /metrics
   interval: 15s
   scrapeTimeout: 10s
+
+securityContext:
+  enabled: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
