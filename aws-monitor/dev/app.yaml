@@ -1,11 +1,11 @@
 ---
-# Source: AWS-Monitor/templates/networkPolicy.yaml
+# Source: aws-monitor/templates/networkPolicy.yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: aws-monitor-np
+  namespace: dev
   labels:
-    
     generator: helm
     name: aws-monitor
 spec:
@@ -22,186 +22,236 @@ spec:
         - protocol: TCP
           port: 5001
   egress:
-  # Allow DNS
-  - to:
-      - namespaceSelector:
-          matchLabels:
-            kubernetes.io/metadata.name: kube-system
-    ports:
-      - protocol: UDP
-        port: 53
-      - protocol: TCP
-        port: 53
-  # Allow outbound HTTP and HTTPS
-  - to:
-      - ipBlock:
-          cidr: 0.0.0.0/0
-    ports:
-      - protocol: TCP
-        port: 80
-      - protocol: TCP
-        port: 443
+    # Allow DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow outbound HTTP and HTTPS
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+    # MongoDB Atlas driver connections use TCP 27017.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 27017
 ---
-# Source: AWS-Monitor/templates/pdb.yaml
+# Source: aws-monitor/templates/pdb.yaml
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: aws-monitor-pdb
+  namespace: dev
 spec:
   maxUnavailable: 25%
   selector:
     matchLabels:
       app: aws-monitor
 ---
-# Source: AWS-Monitor/templates/service.yaml
-kind: Service     
-apiVersion: v1     
+# Source: aws-monitor/templates/service.yaml
+apiVersion: v1
+kind: Service
 metadata:
   name: aws-monitor-svc
+  namespace: dev
   labels:
     app: aws-monitor
-    
     generator: helm
     name: aws-monitor
 spec:
   selector:
     app: aws-monitor
-    
     generator: helm
     name: aws-monitor
-  
   type: ClusterIP
-  
-  ports:         
-  - name: http   
-    protocol: TCP
-    port: 80
-    targetPort: 5001
-
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: http
 ---
-# Source: AWS-Monitor/templates/deployment.yaml
+# Source: aws-monitor/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: aws-monitor-deploy
+  namespace: dev
+  annotations:
+    checkov.io/skip1: "CKV_K8S_35=Runtime environment credentials from Kubernetes Secret references are an intentional application requirement."
   labels:
-    
     generator: helm
     name: aws-monitor
-spec:  
-  selector: 
+spec:
+  selector:
     matchLabels:
       app: aws-monitor
-      
       generator: helm
       name: aws-monitor
-  
   replicas: 2
-  
   template:
     metadata:
       labels:
         app: aws-monitor
-        
         generator: helm
         name: aws-monitor
     spec:
+      automountServiceAccountToken: false
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: aws-monitor
+                topologyKey: kubernetes.io/hostname
       securityContext:
+        fsGroup: 10001
+        runAsGroup: 10001
         runAsNonRoot: true
         runAsUser: 10001
-        runAsGroup: 10001
-        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
       containers:
-      - name: aws-monitor
-        image: sm1986/aws-monitor:1.0.46-dev
-        imagePullPolicy: Always
+        - name: aws-monitor
+          image: "sm1986/aws-monitor@sha256:96028efa614aab7f66bbfed1b81a1509ab2f738579af3790709cca6a3d8c0019"
+          imagePullPolicy: Always
 
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 5001
-          initialDelaySeconds: 10
-          periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
 
-        livenessProbe:
-          tcpSocket: # validate if pod alive via tcp connection
-            port: 5001
-          initialDelaySeconds: 30
-          periodSeconds: 20
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
 
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-        ports:
-        - name: http 
-          containerPort: 5001
-        
-        
-        env:
-          - name: AWS_ACCESS_KEY_ID
-            valueFrom:
-              secretKeyRef:
-                name: aws-monitor-secret
-                key: AWS_ACCESS_KEY_ID
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            privileged: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: http
+              containerPort: 5001
 
-          - name: AWS_SECRET_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: aws-monitor-secret
-                key: AWS_SECRET_ACCESS_KEY
-        
+          env:
+            - name: AUTH_TRUSTED_PROXY_CIDRS
+              value: ""
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: aws-monitor-mongodb
+                  key: MONGODB_URI
+            - name: MONGODB_DATABASE
+              value: "aws_monitor"
+            - name: AUTH_MAX_FAILURES
+              value: "5"
+            - name: AUTH_WINDOW_SECONDS
+              value: "60"
+            - name: APP_HOST
+              value: "0.0.0.0"
+            - name: APP_PORT
+              value: "5001"
+            - name: AWS_REGION
+              value: "us-east-1"
+            - name: AWS_CACHE_TTL
+              value: "30"
+            - name: AWS_REFRESH_TIMEOUT
+              value: "3"
+            - name: AWS_FAILURE_COOLDOWN
+              value: "10"
+            - name: AWS_TASK_TIMEOUT
+              value: "15"
+            - name: AWS_MAX_DATA_AGE
+              value: "900"
+            - name: WEB_CONCURRENCY
+              value: "2"
+            - name: GUNICORN_THREADS
+              value: "4"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-monitor-secret
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-monitor-secret
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_SESSION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: aws-monitor-secret
+                  key: AWS_SESSION_TOKEN
+                  optional: true
 
-        resources:
-          requests:
-            cpu: "200m"
-            memory: "256Mi"
-            ephemeral-storage: "100Mi"
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+              ephemeral-storage: "100Mi"
 
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
-            ephemeral-storage: "1Gi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+              ephemeral-storage: "1Gi"
 ---
-# Source: AWS-Monitor/templates/ingress.yaml
+# Source: aws-monitor/templates/ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: aws-monitor-ing
+  namespace: dev
   labels:
-    
     generator: helm
     name: aws-monitor
   annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
-  ingressClassName: nginx
+  ingressClassName: "nginx"
   rules:
-    - http:
-       paths:
-        - path: "^/dev(/q(/.*)?)?$"
-          pathType: ImplementationSpecific
-          backend:
-            service:
-              name: aws-monitor-svc
-              port:
-                 number: 80
-
-
+    - host: "localhost"
+      http:
+        paths:
+          - path: "^/dev(/q(/.*)?)?$"
+            pathType: Prefix
+            backend:
+              service:
+                name: aws-monitor-svc
+                port:
+                  number: 80
 ---
-# Source: AWS-Monitor/templates/podMonitor.yaml
+# Source: aws-monitor/templates/podMonitor.yaml
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
   name: aws-monitor-dev-pm
-  namespace: monitoring
+  namespace: "monitoring"
   labels:
-    release: prometheus
-    
+    release: "prometheus"
     generator: helm
     name: aws-monitor
 spec:
@@ -211,23 +261,22 @@ spec:
 
   namespaceSelector:
     matchNames:
-    - dev
+      - "dev"
 
   podMetricsEndpoints:
     - port: http
-      path: /metrics
-      interval: 15s
-      scrapeTimeout: 10s
+      path: "/metrics"
+      interval: "15s"
+      scrapeTimeout: "10s"
 ---
-# Source: AWS-Monitor/templates/serviceMonitor.yaml
+# Source: aws-monitor/templates/serviceMonitor.yaml
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: aws-monitor-dev-sm
-  namespace: monitoring
+  namespace: "monitoring"
   labels:
-    release: prometheus
-    
+    release: "prometheus"
     generator: helm
     name: aws-monitor
 spec:
@@ -237,10 +286,10 @@ spec:
 
   namespaceSelector:
     matchNames:
-    - dev
+      - "dev"
 
   endpoints:
     - port: http
-      path: /metrics
-      interval: 15s
-      scrapeTimeout: 10s
+      path: "/metrics"
+      interval: "15s"
+      scrapeTimeout: "10s"
